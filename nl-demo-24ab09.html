@@ -1,0 +1,727 @@
+<!doctype html>
+<html lang="no">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Netlift – HK-sjekk (Demo)</title>
+  <style>
+    :root{
+      --bg:#0b1220; --card:#111a2e; --muted:#94a3b8; --text:#e5e7eb;
+      --blue:#2563eb; --orange:#f97316; --red:#ef4444; --amber:#f59e0b; --green:#22c55e;
+      --line:rgba(148,163,184,.22);
+      --radius:18px;
+    }
+    *{box-sizing:border-box;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial;}
+    html,body{height:100%;}
+    body{
+      margin:0;
+      background:radial-gradient(1200px 600px at 30% 0%, #18254a 0%, var(--bg) 55%);
+      color:var(--text);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+    .wrap{max-width:980px;margin:0 auto;padding:18px 14px 90px;} /* ekstra bunn for sticky bar */
+    @media (min-width: 920px){ .wrap{padding:28px 16px 60px;} }
+
+    .brand{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+    .mark{
+      width:38px;height:38px;border-radius:12px;
+      background:linear-gradient(135deg,var(--blue),#1d4ed8);
+      position:relative;box-shadow:0 10px 30px rgba(37,99,235,.25);
+      flex:0 0 auto;
+    }
+    .mark:before,.mark:after{content:"";position:absolute;left:50%;transform:translateX(-50%);width:18px;height:18px;border-radius:6px;background:#fff;}
+    .mark:before{top:7px;clip-path:polygon(50% 10%, 85% 55%, 63% 55%, 63% 90%, 37% 90%, 37% 55%, 15% 55%);}
+    .mark:after{bottom:7px;clip-path:polygon(50% 90%, 85% 45%, 63% 45%, 63% 10%, 37% 10%, 37% 45%, 15% 45%);opacity:.95}
+
+    h1{margin:0;font-size:34px;letter-spacing:-.02em;line-height:1;}
+    @media (min-width: 920px){ h1{font-size:44px;} }
+    .sub{color:var(--muted);margin:8px 0 0 0;max-width:720px;line-height:1.45;font-size:14px;}
+    @media (min-width: 920px){ .sub{font-size:15px;} }
+
+    /* Mobil: én kolonne. Desktop: to kolonner */
+    .grid{display:grid;gap:12px;margin-top:14px;}
+    @media (min-width: 920px){ .grid{grid-template-columns: 1.1fr .9fr; gap:16px; margin-top:22px;} }
+
+    .card{
+      background:rgba(17,26,46,.92);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      padding:16px;
+      box-shadow:0 20px 60px rgba(0,0,0,.25);
+    }
+    .card h2{margin:0 0 10px 0;font-size:16px}
+    @media (min-width: 920px){ .card h2{font-size:18px} }
+
+    .hint{font-size:13px;color:var(--muted);line-height:1.35}
+    .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+
+    input[type="text"]{
+      flex:1; min-width:220px;
+      background:#0b1326; color:var(--text);
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:14px 12px;
+      font-size:16px; /* 16px hindrer iOS zoom */
+      outline:none;
+    }
+    input[type="text"]:focus{border-color:rgba(37,99,235,.7); box-shadow:0 0 0 4px rgba(37,99,235,.15);}
+
+    button{
+      border:0; border-radius:14px;
+      padding:14px 14px;
+      font-weight:800; cursor:pointer;
+      background:linear-gradient(135deg,var(--blue),#1d4ed8);
+      color:#fff; font-size:15px;
+      min-height:48px; /* mobil trykkflate */
+      box-shadow:0 14px 30px rgba(37,99,235,.25);
+    }
+    button.secondary{
+      background:#0b1326;border:1px solid var(--line);color:var(--text);box-shadow:none
+    }
+    button.orange{
+      background:linear-gradient(135deg,var(--orange),#fb923c);
+      box-shadow:0 14px 30px rgba(249,115,22,.25)
+    }
+
+    .pill{
+      display:inline-flex;align-items:center;gap:8px;
+      border-radius:999px;padding:7px 10px;
+      border:1px solid var(--line);
+      background:rgba(11,19,38,.7);
+      font-size:13px;color:var(--muted)
+    }
+
+    .status{display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap}
+    .badge{display:inline-flex;align-items:center;gap:8px;padding:9px 12px;border-radius:14px;font-weight:900;letter-spacing:.01em}
+    .b-red{background:rgba(239,68,68,.15); color:#fecaca; border:1px solid rgba(239,68,68,.35)}
+    .b-amb{background:rgba(245,158,11,.14); color:#fde68a; border:1px solid rgba(245,158,11,.35)}
+    .b-yel{background:rgba(249,115,22,.12); color:#fed7aa; border:1px solid rgba(249,115,22,.35)}
+    .b-ok{background:rgba(34,197,94,.12); color:#bbf7d0; border:1px solid rgba(34,197,94,.35)}
+
+    .list{margin:14px 0 0 0;padding:0;list-style:none;display:grid;gap:10px}
+    .item{
+      display:flex;gap:10px;align-items:flex-start;
+      background:#0b1326;border:1px solid var(--line);
+      border-radius:16px;padding:12px
+    }
+    .dot{width:10px;height:10px;border-radius:999px;margin-top:5px;flex:0 0 auto}
+    .dot.red{background:var(--red)} .dot.amb{background:var(--amber)} .dot.yel{background:var(--orange)} .dot.ok{background:var(--green)}
+    .small{font-size:13px;color:var(--muted);margin-top:4px;line-height:1.35}
+    .hr{height:1px;background:var(--line);margin:14px 0}
+
+    .price{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+    .price strong{font-size:22px}
+    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+    .actions button{flex:1 1 180px}
+    .note{font-size:12px;color:var(--muted);line-height:1.35;margin-top:10px}
+
+    .selectbox{display:grid;gap:10px;margin-top:10px}
+    .choice{
+      display:flex;justify-content:space-between;gap:12px;align-items:center;
+      padding:12px;border-radius:16px;background:#0b1326;border:1px solid var(--line)
+    }
+    .choice b{font-size:14px}
+    .choice span{font-size:12px;color:var(--muted);line-height:1.35}
+
+    .footer{margin-top:14px;font-size:12px;color:var(--muted)}
+    .kbd{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;background:#0b1326;border:1px solid var(--line);padding:2px 6px;border-radius:8px}
+
+    /* Sticky demo-bar på mobil */
+    .stickybar{
+      position:fixed; left:0; right:0; bottom:0;
+      padding:10px 12px calc(10px + env(safe-area-inset-bottom));
+      background:rgba(11,18,32,.78);
+      backdrop-filter: blur(10px);
+      border-top:1px solid var(--line);
+      display:flex; gap:10px; align-items:center;
+      z-index:9999;
+    }
+    .stickybar .mini{flex:1; min-width:0;}
+    .stickybar input{
+      width:100%;
+      min-width:0;
+      padding:13px 12px;
+      border-radius:14px;
+    }
+    .stickybar button{flex:0 0 auto; padding:13px 14px;}
+    @media (min-width: 920px){
+      .stickybar{display:none;}
+      .wrap{padding-bottom:60px;}
+    }
+
+    /* På mobil: flytt fokus til resultat lettere */
+    .scrollhint{display:none;}
+    @media (max-width: 919px){
+      .scrollhint{display:block;margin-top:10px;}
+    }
+  </style>
+</head>
+
+<body>
+<div class="wrap">
+  <div class="brand">
+    <div class="mark" aria-hidden="true"></div>
+    <div>
+      <h1>netlift</h1>
+      <p class="sub">
+        Demo: lim inn <b>HK-nummer</b> eller <b>gateadresse</b>. Vi simulerer kontrollfunn og viser alvorlighet, typisk kostnadsspenn og neste steg.
+      </p>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h2>Sjekk status på heisen</h2>
+      <div class="hint">
+        Prøv <span class="kbd">HK-001</span>, <span class="kbd">HK-002</span>, <span class="kbd">HK-003</span> eller
+        <span class="kbd">Storgata 12, Oslo</span>, <span class="kbd">Karl Johans gate 15</span>, <span class="kbd">Parkveien 3</span>.
+      </div>
+
+      <!-- Desktop / vanlig input -->
+      <div class="row">
+        <input id="query" type="text" placeholder="HK-nummer eller gateadresse" autocomplete="off" />
+        <button id="btnCheck">Sjekk status</button>
+        <button id="btnReset" class="secondary">Nullstill</button>
+      </div>
+
+      <div class="footer scrollhint">Tips: På mobil kan du bruke feltet nederst for rask demo.</div>
+    </div>
+
+    <div class="card" id="panelRight">
+      <h2>Resultat</h2>
+      <div class="hint">Her kommer resultatet når du søker.</div>
+      <div id="out"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Sticky bar (mobil) -->
+<div class="stickybar" aria-label="Netlift demo bar">
+  <div class="mini">
+    <input id="queryMobile" type="text" placeholder="HK-nummer eller adresse" inputmode="text" autocomplete="off" />
+  </div>
+  <button id="btnCheckMobile">Sjekk</button>
+  <button id="btnResetMobile" class="secondary" aria-label="Nullstill">↺</button>
+</div>
+
+<script>
+  // Normalize helper
+  function norm(s) {
+    return String(s || "")
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, " ")
+      .replace(/[,]/g, "");
+  }
+
+  // Severity palette + labels
+  const SEVERITY = {
+    CRITICAL: { key:"CRITICAL", label:"🔴 Kritisk pålegg", badge:"b-red", dot:"red", short:"Kritisk", note:"Utbedring anbefales umiddelbart." },
+    ORDER:    { key:"ORDER",    label:"🟠 Pålegg",        badge:"b-yel", dot:"yel", short:"Pålegg",  note:"Må utbedres innen frist." },
+    DEVIATION:{ key:"DEVIATION",label:"🟡 Avvik",         badge:"b-amb", dot:"amb", short:"Avvik",   note:"Bør planlegges – ikke akutt." },
+    OK:       { key:"OK",       label:"🟢 Ingen funn",    badge:"b-ok",  dot:"ok",  short:"OK",      note:"Ingen tiltak foreslått." }
+  };
+
+  // HK lookup: map HK-number -> unitId
+  const hkIndex = new Map([
+    ["hk-001", "unit_storgata_12_a"],
+    ["hk-002", "unit_kjg_15_p1"],
+    ["hk-003", "unit_parkveien_3_a"]
+  ]);
+
+  // Address lookup: map address -> array of unitIds
+  const addressIndex = new Map([
+    ["storgata 12 oslo", ["unit_storgata_12_a", "unit_storgata_12_b"]],
+    ["karl johans gate 15", ["unit_kjg_15_p1"]],
+    ["parkveien 3", ["unit_parkveien_3_a"]]
+  ]);
+
+  // Unit records
+  const units = {
+    unit_storgata_12_a: {
+      unitLabel: "Heis A – Personheis (oppgang A)",
+      address: "Storgata 12, Oslo",
+      hkNumber: "HK-001",
+      lastControlDate: "2025-11-18",
+      severity: SEVERITY.CRITICAL,
+      due: "Umiddelbart",
+      costRange: "90.000 – 160.000 kr",
+      findings: [
+        { title: "Dørlås fungerer ikke korrekt", explain:"Risiko for at dør ikke låser korrekt før start.", sev:"CRITICAL" },
+        { title: "Manglende nødkommunikasjon", explain:"Nødtelefon/kommunikasjon ikke verifisert i drift.", sev:"CRITICAL" },
+        { title: "Slitasje på sikkerhetskomponent", explain:"Kontroll krever utbedring/utskiftning iht. toleranse.", sev:"ORDER" }
+      ],
+      consultantSuggested: false,
+      nextStepText: "Anbud anbefales nå. Tempo er viktigere enn optimalisering."
+    },
+
+    unit_storgata_12_b: {
+      unitLabel: "Heis B – Vareheis (bakgård)",
+      address: "Storgata 12, Oslo",
+      hkNumber: "HK-004 (demo)",
+      lastControlDate: "2025-10-02",
+      severity: SEVERITY.ORDER,
+      due: "Innen 30 dager",
+      costRange: "60.000 – 140.000 kr",
+      findings: [
+        { title: "Dørkraft over grense", explain:"Krever justering og dokumentert måling.", sev:"ORDER" },
+        { title: "Merking mangler på komponent", explain:"Oppdatering av merking iht. krav.", sev:"DEVIATION" },
+        { title: "Krav om kontroll av føringer", explain:"Planlagt kontroll og dokumentasjon.", sev:"DEVIATION" }
+      ],
+      consultantSuggested: true,
+      nextStepText: "Anbud anbefales. Vurder uavhengig verifisering hvis du vil sikre omfang før bestilling."
+    },
+
+    unit_kjg_15_p1: {
+      unitLabel: "Heis – Personheis (inngang hoved)",
+      address: "Karl Johans gate 15",
+      hkNumber: "HK-002",
+      lastControlDate: "2025-12-03",
+      severity: SEVERITY.ORDER,
+      due: "Innen 14 dager",
+      costRange: "120.000 – 260.000 kr",
+      findings: [
+        { title: "Avvik i dørstyring", explain:"Krever feilsøk/utbedring og funksjonstest.", sev:"ORDER" },
+        { title: "Sikkerhetskrets: dokumentasjon ufullstendig", explain:"Oppdater dokumentasjon og testprotokoll.", sev:"DEVIATION" },
+        { title: "Bremseprøve kreves dokumentert", explain:"Må dokumenteres iht. krav i kontroll.", sev:"ORDER" }
+      ],
+      consultantSuggested: true,
+      nextStepText: "Anbud anbefales. Digital verifisering (bilder/video) kan være nyttig før bestilling."
+    },
+
+    unit_parkveien_3_a: {
+      unitLabel: "Heis – Personheis (oppgang B)",
+      address: "Parkveien 3",
+      hkNumber: "HK-003",
+      lastControlDate: "2025-09-12",
+      severity: SEVERITY.DEVIATION,
+      due: "Neste planlagte vedlikehold",
+      costRange: "15.000 – 45.000 kr",
+      findings: [
+        { title: "Manglende merking i sjakt", explain:"Oppdater merking for enklere identifikasjon.", sev:"DEVIATION" },
+        { title: "Smøring/justering anbefalt", explain:"Forebyggende tiltak, ikke pålegg.", sev:"DEVIATION" }
+      ],
+      consultantSuggested: false,
+      nextStepText: "Dette kan samles og tas i planlagt løp. Legg ut på anbud hvis du vil få det gjort nå."
+    }
+  };
+// Demo offers (simulerte tilbud). Kan justeres fritt.
+const demoOffersByUnit = {
+  unit_storgata_12_a: [
+    { vendor: "LiftPartner", price: 98500, startDays: 4, responseHours: 18, docs: true },
+    { vendor: "Elevatec",    price: 115000, startDays: 1, responseHours: 6,  docs: true },
+    { vendor: "Heisfirma AS",price: 105000, startDays: 2, responseHours: 24, docs: false }
+  ],
+  unit_storgata_12_b: [
+    { vendor: "Heisfirma AS", price: 89000, startDays: 7, responseHours: 36, docs: true },
+    { vendor: "NordLift",     price: 99000, startDays: 5, responseHours: 12, docs: true },
+    { vendor: "Elevatec",     price: 112000, startDays: 3, responseHours: 8,  docs: true }
+  ],
+  unit_kjg_15_p1: [
+    { vendor: "LiftPartner",  price: 179000, startDays: 6, responseHours: 14, docs: true },
+    { vendor: "Elevatec",     price: 205000, startDays: 2, responseHours: 8,  docs: true },
+    { vendor: "Heisfirma AS", price: 162000, startDays: 9, responseHours: 30, docs: false }
+  ],
+  unit_parkveien_3_a: [
+    { vendor: "NordLift",     price: 19000, startDays: 10, responseHours: 20, docs: true },
+    { vendor: "Heisfirma AS", price: 24500, startDays: 4,  responseHours: 10, docs: true },
+    { vendor: "Elevatec",     price: 32000, startDays: 2,  responseHours: 6,  docs: true }
+  ]
+};
+
+function formatNOK(n){
+  return new Intl.NumberFormat("nb-NO").format(n) + " kr";
+}
+
+  const out = document.getElementById("out");
+  const queryEl = document.getElementById("query");
+  const queryMobileEl = document.getElementById("queryMobile");
+
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, c => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+    }[c]));
+  }
+
+  function resetUI() {
+    out.innerHTML = `
+      <div class="hint">Søk med HK-nummer eller adresse for å se et demo-resultat.</div>
+      <div class="hr"></div>
+      <div class="hint">Eksempler: <span class="kbd">HK-001</span> • <span class="kbd">Storgata 12, Oslo</span> • <span class="kbd">Karl Johans gate 15</span></div>
+    `;
+  }
+
+  function renderNotFound(msg) {
+    out.innerHTML = `
+      <div class="badge b-amb">Fant ingen treff</div>
+      <div class="small" style="margin-top:10px">${escapeHtml(msg || "Prøv HK-nummer eller demo-adressene.")}</div>
+      <div class="hr"></div>
+      <div class="hint">Prøv: <span class="kbd">HK-001</span> • <span class="kbd">Storgata 12, Oslo</span> • <span class="kbd">Karl Johans gate 15</span> • <span class="kbd">Parkveien 3</span></div>
+    `;
+  }
+
+  function renderMultiple(addressKey, unitIds) {
+    out.innerHTML = `
+      <div class="badge b-yel">Flere heiser funnet</div>
+      <div class="small" style="margin-top:8px">Adresse: <b>${escapeHtml(addressKey)}</b>. Velg hvilken heis du vil sjekke.</div>
+      <div class="selectbox">
+        ${unitIds.map(id => {
+          const u = units[id];
+          return `
+            <div class="choice">
+              <div>
+                <b>${escapeHtml(u.unitLabel)}</b><br />
+                <span>HK: ${escapeHtml(u.hkNumber)} • Status: ${escapeHtml(u.severity.short)}</span>
+              </div>
+             <button onclick="renderUnit('${id}')">Velg</button>
+            </div>
+          `;
+        }).join("")}
+      </div>
+      <div class="note">I ekte løsning kan dette matches mot bygg/enhet og eierskap.</div>
+    `;
+    scrollToResult();
+  }
+
+  function renderUnit(unitId) {
+    const u = units[unitId];
+    if (!u) return renderNotFound("Ukjent enhet.");
+
+    const sev = u.severity;
+    const consultantBlock = u.consultantSuggested
+      ? `<div class="pill">🔵 Uavhengig vurdering kan være nyttig (valgfritt)</div>`
+      : `<div class="pill">✅ Konsulent normalt ikke nødvendig</div>`;
+
+    const findingsHtml = u.findings.map(f => {
+      const s = (f.sev === "CRITICAL") ? SEVERITY.CRITICAL
+              : (f.sev === "ORDER") ? SEVERITY.ORDER
+              : (f.sev === "DEVIATION") ? SEVERITY.DEVIATION
+              : SEVERITY.OK;
+      return `
+        <li class="item">
+          <div class="dot ${s.dot}"></div>
+          <div>
+            <div><b>${escapeHtml(f.title)}</b></div>
+            <div class="small">${escapeHtml(f.explain)}</div>
+          </div>
+        </li>
+      `;
+    }).join("");
+
+    out.innerHTML = `
+      <div class="status">
+        <span class="badge ${sev.badge}">${sev.label}</span>
+        <span class="pill">Adresse: ${escapeHtml(u.address)}</span>
+        <span class="pill">HK: ${escapeHtml(u.hkNumber)}</span>
+        <span class="pill">Sist kontroll: ${escapeHtml(u.lastControlDate)}</span>
+        <span class="pill">Frist: ${escapeHtml(u.due)}</span>
+      </div>
+
+      <div class="hr"></div>
+
+      <div><b>${escapeHtml(u.unitLabel)}</b></div>
+      <div class="small">${escapeHtml(sev.note)} ${escapeHtml(u.nextStepText)}</div>
+
+      <ul class="list">${findingsHtml}</ul>
+
+      <div class="hr"></div>
+
+      <div class="price">
+        <div class="hint">Typisk kostnad (demo-estimat)</div>
+        <strong>${escapeHtml(u.costRange)}</strong>
+      </div>
+	<div class="hr"></div>
+
+<div class="item" style="display:block">
+  <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start">
+    <div>
+      <div><b>Hva skjer nå?</b></div>
+      <div class="small">${escapeHtml(u.nextStepText)}</div>
+    </div>
+    <div class="pill">⏱️ Typisk responstid: 24–72 timer</div>
+  </div>
+  <div class="small" style="margin-top:10px">
+    Du gjør kun dette: <b>velg oppstart</b> → motta tilbud → velg firma.
+  </div>
+</div>
+
+
+      <div class="actions">
+	<button class="orange" onclick="renderTender('${unitId}')">Legg ut på anbud (demo)</button>
+	<button class="secondary" onclick="renderDocs('${unitId}')">Bilder & dokumentasjon (demo)</button>
+
+       
+      </div>
+
+      <div class="note">
+        Estimatet er et intervall basert på demo-data. Endelig pris fastsettes av utførende firma.
+      </div>
+
+      <div class="hr"></div>
+      ${consultantBlock}
+    `;
+    scrollToResult();
+  }
+
+function renderTender(unitId) {
+  const u = units[unitId];
+  out.innerHTML = `
+    <div class="status">
+      <span class="badge ${u.severity.badge}">Anbud (demo)</span>
+      <span class="pill">${escapeHtml(u.address)}</span>
+      <span class="pill">${escapeHtml(u.hkNumber)}</span>
+    </div>
+
+    <div class="hr"></div>
+
+    <div class="hint">Jobben er forhåndsutfylt basert på kontrollfunn.</div>
+
+    <ul class="list">
+      ${u.findings.map(f => `
+        <li class="item">
+          <div class="dot ${u.severity.dot}"></div>
+          <div><b>${escapeHtml(f.title)}</b><div class="small">${escapeHtml(f.explain)}</div></div>
+        </li>
+      `).join("")}
+    </ul>
+
+    <div class="hr"></div>
+
+    <div class="hint"><b>Velg ønsket oppstart</b> (demo)</div>
+    <div class="row">
+      <button onclick="renderOffers('${unitId}','Innen 48 timer')">Innen 48 timer</button>
+      <button onclick="renderOffers('${unitId}','Innen 7 dager')">Innen 7 dager</button>
+      <button class="secondary" onclick="renderOffers('${unitId}','Fleksibelt')">Fleksibelt</button>
+    </div>
+
+    <div class="note">I ekte versjon sendes dette til verifiserte heisfirma og du får svar i løpet av 24–72 timer.</div>
+
+    <div class="actions">
+      <button class="secondary" onclick="renderUnit('${unitId}')">Tilbake</button>
+    </div>
+  `;
+  scrollToResult();
+}
+
+
+  function renderDocs(unitId) {
+    const u = units[unitId];
+    out.innerHTML = `
+      <div class="status">
+        <span class="badge ${u.severity.badge}">Bilder & dokumentasjon (demo)</span>
+        <span class="pill">${escapeHtml(u.address)}</span>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="hint">
+        Digital “remote verifisering” for å redusere behov for fysisk befaring.
+      </div>
+
+      <div class="selectbox">
+        <div class="choice">
+          <div>
+            <b>Ta bilde av dør/låsområde</b><br />
+            <span>Verifiser omfang før tilbud.</span>
+          </div>
+          <button class="secondary" onclick="alert('Demo: åpner kameraflyt')">Start</button>
+        </div>
+
+        <div class="choice">
+          <div>
+            <b>Film nødkommunikasjon i drift</b><br />
+            <span>15–30 sek. Vis oppkobling/lyd.</span>
+          </div>
+          <button class="secondary" onclick="alert('Demo: åpner video-opplasting')">Start</button>
+        </div>
+
+        <div class="choice">
+          <div>
+            <b>Last opp dokumentasjon</b><br />
+            <span>Tilbudsbrev, historikk, tidligere tiltak.</span>
+          </div>
+          <button class="secondary" onclick="alert('Demo: filopplasting')">Last opp</button>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="secondary" onclick="renderUnit('${unitId}')">Tilbake</button>
+
+      </div>
+    `;
+    scrollToResult();
+  }
+function renderOffers(unitId, startChoice, sortMode = "balanced") {
+  const u = units[unitId];
+  const offers = (demoOffersByUnit[unitId] || []).slice();
+
+  // Sortering
+  if (sortMode === "fastest") {
+    offers.sort((a,b) => (a.startDays - b.startDays) || (a.responseHours - b.responseHours) || (a.price - b.price));
+  } else if (sortMode === "cheapest") {
+    offers.sort((a,b) => (a.price - b.price) || (a.startDays - b.startDays) || (a.responseHours - b.responseHours));
+  } else {
+    // "balanced": enkel score (pris + oppstart + responstid) – demo
+    offers.sort((a,b) => {
+      const score = (o) => (o.price/1000) + (o.startDays*8) + (o.responseHours*0.7) + (o.docs ? 0 : 20);
+      return score(a) - score(b);
+    });
+  }
+function renderOfferDetail(unitId, vendor, price, startDays, responseHours, docs){
+  const u = units[unitId];
+  out.innerHTML = `
+    <div class="status">
+      <span class="badge ${u.severity.badge}">Bekreft valg (demo)</span>
+      <span class="pill">${escapeHtml(u.address)}</span>
+    </div>
+
+    <div class="hr"></div>
+
+    <div class="item" style="display:block">
+      <div><b>Du har valgt ${escapeHtml(vendor)}</b></div>
+      <div class="small" style="margin-top:8px">
+        Pris: <b>${formatNOK(price)}</b><br/>
+        Oppstart: <b>${startDays} dager</b><br/>
+        Responstid: <b>${responseHours} timer</b><br/>
+        Dokumentasjon: <b>${docs ? "Inkludert ✅" : "Mangler ⚠️"}</b>
+      </div>
+    </div>
+
+    <div class="hr"></div>
+
+    <div class="hint"><b>Dokumentasjon som kreves ved ferdigstillelse</b></div>
+    <ul class="list">
+      <li class="item"><div class="dot ok"></div><div><b>Utførelsesrapport</b><div class="small">Hva er gjort + dato</div></div></li>
+      <li class="item"><div class="dot ok"></div><div><b>Samsvarserklæring</b><div class="small">Ved relevante tiltak</div></div></li>
+      <li class="item"><div class="dot ok"></div><div><b>Bilder</b><div class="small">Før/etter ved behov</div></div></li>
+    </ul>
+
+    <div class="actions">
+      <button class="orange" onclick="alert('Demo: valg bekreftet. I ekte versjon opprettes avtaleprosess.')">Bekreft avtale</button>
+      <button class="secondary" onclick="renderOffers('${unitId}','Fleksibelt','balanced')">Tilbake til tilbud</button>
+    </div>
+  `;
+  scrollToResult();
+}
+
+  const sortBtn = (key, label) => `
+    <button class="${sortMode===key ? "" : "secondary"}" onclick="renderOffers('${unitId}', '${startChoice}', '${key}')">${label}</button>
+  `;
+
+  out.innerHTML = `
+    <div class="status">
+      <span class="badge ${u.severity.badge}">Mottatte tilbud (demo)</span>
+      <span class="pill">${escapeHtml(u.address)}</span>
+      <span class="pill">Oppstart: ${escapeHtml(startChoice)}</span>
+    </div>
+
+    <div class="hr"></div>
+
+    <div class="hint"><b>Sorter</b></div>
+    <div class="row">
+      ${sortBtn("balanced","Balansert")}
+      ${sortBtn("fastest","Raskest")}
+      ${sortBtn("cheapest","Billigst")}
+    </div>
+
+    <div class="hr"></div>
+
+    <div class="selectbox">
+      ${offers.map(o => `
+        <div class="choice">
+          <div>
+            <b>${escapeHtml(o.vendor)}</b><br/>
+            <span>
+              Pris: <b>${formatNOK(o.price)}</b> • Oppstart: ${o.startDays} dager • Svar: ${o.responseHours}t
+              ${o.docs ? " • Dokumentasjon: ✅" : " • Dokumentasjon: ⚠️"}
+            </span>
+          </div>
+          <button onclick="renderOfferDetail('${unitId}','${escapeHtml(o.vendor)}',${o.price},${o.startDays},${o.responseHours},${o.docs})">Velg</button>
+        </div>
+      `).join("")}
+    </div>
+
+    <div class="note">Demo: Tilbud er simulert. I ekte versjon inngår du avtale direkte med valgt firma.</div>
+
+    <div class="actions">
+      <button class="secondary" onclick="renderTender('${unitId}')">Tilbake</button>
+      <button class="secondary" onclick="renderUnit('${unitId}')">Resultat</button>
+    </div>
+  `;
+  scrollToResult();
+}
+
+
+  function fakePosted(){
+    alert("Demo: Anbud publisert (simulert). I ekte versjon sendes dette til verifiserte heisfirma.");
+  }
+
+  function scrollToResult(){
+    // Mobil: smooth scroll til resultat-kortet for enklere fremvisning
+    if (window.matchMedia("(max-width: 919px)").matches) {
+      const panel = document.getElementById("panelRight");
+      panel.scrollIntoView({behavior:"smooth", block:"start"});
+    }
+  }
+
+  function setBothInputs(value){
+    queryEl.value = value;
+    queryMobileEl.value = value;
+  }
+
+  function getQuery(){
+    // bruk mobilfelt hvis det er fylt ut, ellers desktopfelt
+    const m = queryMobileEl.value.trim();
+    const d = queryEl.value.trim();
+    return m || d;
+  }
+
+  function search() {
+    const raw = getQuery();
+    const q = norm(raw);
+    if (!q) return renderNotFound("Skriv inn HK-nummer eller adresse.");
+
+    const maybeHK = q.replace(/\s/g,"");
+    if (hkIndex.has(maybeHK)) {
+      setBothInputs(raw);
+      return renderUnit(hkIndex.get(maybeHK));
+    }
+
+    if (addressIndex.has(q)) {
+      setBothInputs(raw);
+      const unitIds = addressIndex.get(q);
+      return unitIds.length === 1 ? renderUnit(unitIds[0]) : renderMultiple(raw.trim(), unitIds);
+    }
+
+    for (const [addrKey, unitIds] of addressIndex.entries()) {
+      if (addrKey.includes(q) || q.includes(addrKey)) {
+        setBothInputs(raw);
+        return unitIds.length === 1 ? renderUnit(unitIds[0]) : renderMultiple(addrKey, unitIds);
+      }
+    }
+
+    return renderNotFound("Ingen demo-case på det søket. Prøv en av eksemplene.");
+  }
+
+  // events
+  document.getElementById("btnCheck").addEventListener("click", search);
+  document.getElementById("btnReset").addEventListener("click", () => { setBothInputs(""); resetUI(); queryEl.focus(); });
+
+  document.getElementById("btnCheckMobile").addEventListener("click", search);
+  document.getElementById("btnResetMobile").addEventListener("click", () => { setBothInputs(""); resetUI(); queryMobileEl.focus(); });
+
+  queryEl.addEventListener("keydown", (e) => { if (e.key === "Enter") search(); });
+  queryMobileEl.addEventListener("keydown", (e) => { if (e.key === "Enter") search(); });
+
+// Expose functions for inline onclick handlers (important for demo)
+window.renderUnit = renderUnit;
+window.renderTender = renderTender;
+window.renderDocs = renderDocs;
+window.fakePosted = fakePosted;
+
+  // init
+  resetUI();
+</script>
+</body>
+</html>
